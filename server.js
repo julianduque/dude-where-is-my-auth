@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const expressSession = require('express-session')
 const passport = require('passport')
-const LocalStrategy = require('passport-local').Strategy
+const TwitterStrategy = require('passport-twitter').Strategy
 const port = process.env.PORT || 8080
 
 const app = express()
@@ -23,32 +23,32 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.static(path.join(__dirname, 'public')))
 
-passport.use(new LocalStrategy((username, password, done) => {
-  if (username === 'soy' && password === 'platzi') {
-    return done(null, { name: 'Super', lastname: 'User', username: 'superuser' })
-  }
-
-  done(null, false, { message: 'Unknown user' })
+passport.use(new TwitterStrategy({
+  consumerKey: process.env.TWITTER_CONSUMER_KEY,
+  consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+  callbackURL: 'http://dude-where-is-my-auth.jotason.rocks/auth/twitter/callback'
+}, (token, tokenSecret, profile, done) => {
+  // check profile against database?
+  done(null, profile)
 }))
 
 passport.serializeUser((user, done) => done(null, user))
 passport.deserializeUser((user, done) => done(null, user))
 
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/welcome',
-  failureRedirect: '/login' }))
+app.get('/auth/twitter', passport.authenticate('twitter'))
 
-app.get('/login', (req, res) => {
-  res.redirect('/login.html')
-})
+app.get('/auth/twitter/callback', passport.authenticate('twitter', {
+  successRedirect: '/welcome',
+  failureRedirect: '/'
+}))
 
 app.get('/logout', (req, res) => {
   req.logout()
-  res.redirect('/login')
+  res.redirect('/')
 })
 
 app.get('/welcome', ensureAuth, (req, res) => {
-  res.send(`You are welcome ${req.user.username}`)
+  res.send(`You are welcome ${req.user.displayName}`)
 })
 
 function ensureAuth (req, res, next) {
@@ -56,7 +56,7 @@ function ensureAuth (req, res, next) {
     return next()
   }
 
-  res.redirect('/login')
+  res.redirect('/')
 }
 
 server.listen(port, () => console.log(`Listening on port ${port}`))
