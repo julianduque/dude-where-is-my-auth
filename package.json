@@ -1,0 +1,22 @@
+{
+  "name": "dude-where-is-my-auth",
+  "version": "1.0.0",
+  "description": "Where is my Authentication?",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/julianduque/dude-where-is-my-auth.git"
+  },
+  "author": "Julian Duque <julianduquej@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/julianduque/dude-where-is-my-auth/issues"
+  },
+  "homepage": "https://github.com/julianduque/dude-where-is-my-auth#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
